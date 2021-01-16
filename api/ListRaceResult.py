@@ -1,15 +1,12 @@
 import json
-import configparser
 import mysql.connector
 from datetime import datetime
 
 class ListRaceResult:
 	def on_get(self, req, resp):
 		result = {}
-
-		#クエリパラメータを取得
-		raceId = None
 		if 'raceId' in req.params:
+			#クエリパラメータを取得
 			raceId = req.params['raceId']
 
 			#ローカルのDBの場合
