@@ -12,6 +12,11 @@ class RaceCard:
 			jvdHorseId = req.params['jvdHorseId']
 			size = int(req.params['size'])
 
+			#レスポンス
+			raceCard['result'] = {}
+			raceCard['result']['type'] = 'RaceCard'
+			raceCard['result']['items'] = []
+
 			#設定ファイルの読み込み
 			inifile = configparser.ConfigParser()
 			inifile.read('./config.ini', 'utf-8')
@@ -20,11 +25,6 @@ class RaceCard:
 			user = inifile.get('mysql', 'user')
 			password = inifile.get('mysql', 'password')
 			database = inifile.get('mysql', 'database')
-
-			#レスポンス
-			raceCard['result'] = {}
-			raceCard['result']['type'] = 'RaceCard'
-			raceCard['result']['items'] = []
 
 			#DBに接続
 			conn = mysql.connector.connect(
