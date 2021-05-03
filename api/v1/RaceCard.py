@@ -1,5 +1,6 @@
 import json
 import mysql.connector
+import configparser
 from datetime import datetime
 
 class RaceCard:
@@ -11,18 +12,27 @@ class RaceCard:
 			jvdHorseId = req.params['jvdHorseId']
 			size = int(req.params['size'])
 
+			#設定ファイルの読み込み
+			inifile = configparser.ConfigParser()
+			inifile.read('./config.ini', 'utf-8')
+			host = inifile.get('mysql', 'host')
+			port = inifile.get('mysql', 'port')
+			user = inifile.get('mysql', 'user')
+			password = inifile.get('mysql', 'password')
+			database = inifile.get('mysql', 'database')
+
 			#レスポンス
 			raceCard['result'] = {}
 			raceCard['result']['type'] = 'RaceCard'
 			raceCard['result']['items'] = []
 
-			#ローカルのDBの場合
+			#DBに接続
 			conn = mysql.connector.connect(
-				host = 'localhost',
-				port = 3306,
-				user = 'root',
-				password = '',
-				database = 'meydan'
+				host = host,
+				port = port,
+				user = user,
+				password = password,
+				database = database
 			)
 			cur = conn.cursor(buffered=True)
 
@@ -106,6 +116,7 @@ class RaceCard:
 			conn.close()
 
 		else:
+			#パラメータ異常のとき
 			raceCard['message'] = "bad request"
 
 		resp.body = json.dumps(raceCard, ensure_ascii=False)
