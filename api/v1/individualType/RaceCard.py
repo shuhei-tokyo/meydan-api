@@ -13,9 +13,7 @@ class RaceCard:
 			size = int(req.params['size'])
 
 			#レスポンスの作成
-			raceCard['result'] = {}
-			raceCard['result']['type'] = 'RaceCard'
-			raceCard['result']['items'] = []
+			raceCard['result'] = []
 
 			#設定ファイルの読み込み
 			inifile = configparser.ConfigParser()
@@ -87,6 +85,7 @@ class RaceCard:
 			rows = cur.fetchall()
 			for row in rows:
 				result = {}
+				result['type'] = "RaceCard"
 				result['id'] = row[0]
 				result['race_class_id'] = row[1]
 				result['datetime'] = row[2].isoformat()
@@ -111,7 +110,7 @@ class RaceCard:
 				result['order_of_corners_4'] = row[21]
 				result['order_of_arrival'] = row[22]
 				result['order_of_arrival_confirmed'] = row[23]
-				raceCard['result']['items'].append(result)
+				raceCard['result'].append(result)
 			cur.close()
 			conn.close()
 
