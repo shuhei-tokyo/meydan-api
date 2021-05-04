@@ -12,7 +12,7 @@ class RaceCard:
 			jvdHorseId = req.params['jvdHorseId']
 			size = int(req.params['size'])
 
-			#レスポンス
+			#レスポンスの作成
 			raceCard['result'] = {}
 			raceCard['result']['type'] = 'RaceCard'
 			raceCard['result']['items'] = []
@@ -104,7 +104,7 @@ class RaceCard:
 				result['horse_weight_gain_and_loss'] = row[14]
 				result['impost'] = row[15]
 				result['time_3f'] = row[16]
-				result['order_if_time_3f'] = row[17]
+				result['order_of_time_3f'] = row[17]
 				result['order_of_corners_1'] = row[18]
 				result['order_of_corners_2'] = row[19]
 				result['order_of_corners_3'] = row[20]

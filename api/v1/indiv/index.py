@@ -7,4 +7,4 @@ class CORSMiddleware:
 		resp.set_header('Access-Control-Allow-Origin', '*')
 
 app = falcon.API(middleware=[CORSMiddleware()])
-app.add_route('/v1/raceCard', RaceCard.RaceCard())
+app.add_route('/v1/indiv/raceCard', RaceCard.RaceCard())
