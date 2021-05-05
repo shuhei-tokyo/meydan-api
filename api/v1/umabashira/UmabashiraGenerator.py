@@ -84,4 +84,6 @@ class UmabashiraGenerator:
 
 				results.append(result)
 
+		cur.close()
+		conn.close()
 		return results
