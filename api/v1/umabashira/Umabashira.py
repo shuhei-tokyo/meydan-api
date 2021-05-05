@@ -11,6 +11,7 @@ class Umabashira:
 		inifile.read('./config.ini', 'UTF-8')
 		csvfile = inifile.get('jvdfile', 'csvfile_A')
 		txtfile = inifile.get('jvdfile', 'txtfile_D')
+		race_rename = inifile.get('api_params', 'race_rename')
 		size = inifile.get('api_params', 'size')
 
 		#レスポンスの作成
@@ -20,7 +21,11 @@ class Umabashira:
 
 		#race_infoの取得
 		raceInfoGenerator = RaceInfoGenerator.RaceInfoGenerator(txtfile)
-		result['result'].update(raceInfoGenerator.getRaceInfo())
+		result['result']['race'] = raceInfoGenerator.getRaceInfo()
+
+		#レース名を上書きするとき
+		if race_rename != "":
+			result['result']['race']['race_name'] = race_rename
 
 		#umabashiraの取得
 		umabashiraGenerator = UmabashiraGenerator.UmabashiraGenerator(csvfile)
