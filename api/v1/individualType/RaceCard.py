@@ -86,7 +86,7 @@ class RaceCard:
 			for row in rows:
 				result = {}
 				result['type'] = "RaceCard"
-				result['id'] = row[0]
+				result['id'] = "rc{0}".format(row[0])
 				result['race_class_id'] = row[1]
 				result['datetime'] = row[2].isoformat()
 				result['race_name'] = row[3]
@@ -104,10 +104,10 @@ class RaceCard:
 				result['impost'] = row[15]
 				result['time_3f'] = row[16]
 				result['order_of_time_3f'] = row[17]
-				result['order_of_corners_1'] = row[18]
-				result['order_of_corners_2'] = row[19]
-				result['order_of_corners_3'] = row[20]
-				result['order_of_corners_4'] = row[21]
+				result['order_of_corner_1'] = row[18]
+				result['order_of_corner_2'] = row[19]
+				result['order_of_corner_3'] = row[20]
+				result['order_of_corner_4'] = row[21]
 				result['order_of_arrival'] = row[22]
 				result['order_of_arrival_confirmed'] = row[23]
 				raceCard['result'].append(result)

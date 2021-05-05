@@ -11,6 +11,7 @@ class Umabashira:
 		inifile.read('./config.ini', 'UTF-8')
 		csvfile = inifile.get('jvdfile', 'csvfile_A')
 		txtfile = inifile.get('jvdfile', 'txtfile_D')
+		size = inifile.get('api_params', 'size')
 
 		#レスポンスの作成
 		result = {}
@@ -30,7 +31,7 @@ class Umabashira:
 			if req.params['type'] == "RaceCard":
 				for i in range(len(result['result']['horse'])):
 					jvdHorseId = result['result']['horse'][i]['org_horse_master_id_jvd']
-					url = "http://localhost:8070/v1/RaceCard?jvdHorseId={0}&size=4".format(jvdHorseId)
+					url = "http://localhost:8070/v1/RaceCard?jvdHorseId={0}&size={1}".format(jvdHorseId, size)
 					r = requests.get(url)
 					res = r.json()
 					result['result']['horse'][i]['item'] = res['result']
