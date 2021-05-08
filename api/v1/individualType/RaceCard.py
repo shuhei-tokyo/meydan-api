@@ -60,7 +60,9 @@ class RaceCard:
 					'race_result.order_of_corners_3, '
 					'race_result.order_of_corners_4, '
 					'race_result.order_of_arrival, '
-					'race_result.order_of_arrival_confirmed '
+					'race_result.order_of_arrival_confirmed, '
+					'jvd_accident_master.id, '
+					'jvd_accident_master.name '
 				'from race_result '
 				'left join org_race_master '
 					'on race_result.org_race_master_id = org_race_master.id '
@@ -72,6 +74,8 @@ class RaceCard:
 					'on org_race_master.jvd_track_condition_master_id = jvd_track_condition_master.id '
 				'left join target_track_type_master '
 					'on org_race_master.target_track_type_master_id = target_track_type_master.id '
+				'left join jvd_accident_master '
+					'on race_result.jvd_accident_master_id = jvd_accident_master.id '
 				'left join org_jockey_master '
 					'on race_result.org_jockey_master_id = org_jockey_master.id '
 				'left join org_horse_master '
@@ -110,6 +114,8 @@ class RaceCard:
 				result['order_of_corner_4'] = row[21]
 				result['order_of_arrival'] = row[22]
 				result['order_of_arrival_confirmed'] = row[23]
+				result['accident_id'] = row[24]
+				result['accident_name'] = row[25]
 				raceCard['result'].append(result)
 			cur.close()
 			conn.close()
