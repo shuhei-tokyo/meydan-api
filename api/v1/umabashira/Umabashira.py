@@ -12,7 +12,8 @@ class Umabashira:
 		csvfile = inifile.get('jvdfile', 'csvfile_A')
 		txtfile = inifile.get('jvdfile', 'txtfile_D')
 		race_rename = inifile.get('api_params', 'race_rename')
-		size = inifile.get('api_params', 'size')
+		size_racecard = inifile.get('api_params', 'size_racecard')
+		size_runningstyle = inifile.get('api_params', 'size_runningstyle')
 
 		#レスポンスの作成
 		result = {}
@@ -33,10 +34,19 @@ class Umabashira:
 
 		#typeが指定されるとき
 		if 'type' in req.params:
+			#type=RaceCard
 			if req.params['type'] == "RaceCard":
 				for i in range(len(result['result']['horse'])):
 					jvdHorseId = result['result']['horse'][i]['org_horse_master_id_jvd']
-					url = "http://localhost:8070/v1/RaceCard?jvdHorseId={0}&size={1}".format(jvdHorseId, size)
+					url = "http://localhost:8070/v1/RaceCard?jvdHorseId={0}&size={1}".format(jvdHorseId, size_racecard)
+					r = requests.get(url)
+					res = r.json()
+					result['result']['horse'][i]['item'] = res['result']
+			#type=RunningStyleStats
+			if req.params['type'] == "RunningStyleStats":
+				for i in range(len(result['result']['horse'])):
+					jvdHorseId = result['result']['horse'][i]['org_horse_master_id_jvd']
+					url = "http://localhost:8070/v1/RunningStyleStats?jvdHorseId={0}&size={1}".format(jvdHorseId, size_runningstyle)
 					r = requests.get(url)
 					res = r.json()
 					result['result']['horse'][i]['item'] = res['result']
