@@ -7,10 +7,19 @@ class RunningStyleStats:
     def on_get(self, req, resp):
         runningStyleStats = {}
         
-        if 'jvdHorseId' in req.params and 'size' in req.params:
+        if 'jvdHorseId' in req.params and 'size' in req.params and 'trackType' in req.params and 'step' in req.params:
             #クエリパラメータの取得
             jvdHorseId = req.params['jvdHorseId']
             size = int(req.params['size'])
+            step = int(req.params['step'])
+            trackType = req.params['trackType']
+            target_track_type_master_id = []
+            if trackType == 'turf':
+                target_track_type_master_id = [1, 5]
+            elif trackType == 'dirt':
+                target_track_type_master_id = [2, 6] #6は配列の長さを揃えるためのダミー(該当データなし)
+            elif trackType == 'steepleChase':
+                target_track_type_master_id = [3, 4]
 
             #レスポンスの作成
             runningStyleStats['result'] = {}
@@ -56,7 +65,7 @@ class RunningStyleStats:
                         'left join org_horse_master '
                         '    on race_result.org_horse_master_id = org_horse_master.id '
                         'where org_horse_master.id_jvd = %s '
-                        '    and org_race_master.target_track_type_master_id in (1,5) '
+                        '    and org_race_master.target_track_type_master_id in (%s,%s) '
                         'and jvd_accident_master.id in (1,5,6,7,8) '
                         'order by org_race_master.datetime desc limit %s '
                     ') as tmp '
@@ -66,7 +75,7 @@ class RunningStyleStats:
                 'order by target_running_style_master.id; '
             )
 
-            cur.execute(sql, (jvdHorseId, size))
+            cur.execute(sql, (jvdHorseId, target_track_type_master_id[0], target_track_type_master_id[1], size))
             rows = cur.fetchall()
             runningStyleStats['result']['type'] = "RunningStyleStats"
             runningStyleStats['result']['element'] = []
@@ -80,6 +89,16 @@ class RunningStyleStats:
 
             cur.close()
             conn.close()
+
+            if step == 4:
+                #先行 = 先行 + マクリ
+                runningStyleStats['result']['element'][1]['count'] = runningStyleStats['result']['element'][1]['count'] + runningStyleStats['result']['element'][4]['count']
+                #差し = 差し + 中団
+                runningStyleStats['result']['element'][2]['count'] = runningStyleStats['result']['element'][2]['count'] + runningStyleStats['result']['element'][5]['count']
+                #追い込み = 追い込み + 後方
+                runningStyleStats['result']['element'][3]['count'] = runningStyleStats['result']['element'][3]['count'] + runningStyleStats['result']['element'][6]['count']
+                #マクリ、中団、後方、その他を削除
+                del runningStyleStats['result']['element'][4:]
 
         else:
             #パラメータ異常のとき
