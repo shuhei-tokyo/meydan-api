@@ -45,8 +45,8 @@ class UmabashiraGenerator:
 				result["horse_name"] = row[7]
 				result["sex"] = row[8]
 				result["age"] = row[9]
-				result["jockey_name"] = row[10]
-				result["trainer_name"] = row[12]
+				result["jockey_name_four_words"] = row[10]
+				result["trainer_name_four_words"] = row[12]
 				result["belongings"] = row[13]
 				result["owner"] = row[14]
 				result["breeder"] = row[15]
@@ -63,24 +63,26 @@ class UmabashiraGenerator:
 					result["impost"] = row[11]
 
 				#jockey_idを取得
-				sql = "select id from org_jockey_master where name_four_words = %s;"
-				cur.execute(sql, (result["jockey_name"], ))
+				sql = "select id, name from org_jockey_master where name_four_words = %s;"
+				cur.execute(sql, (result["jockey_name_four_words"], ))
 				row = cur.fetchone()
 				if row is None:
 					result["jockey_id"] = None
-					logger.error("'{0}' is not registered in org_jockey_master".format(result["jockey_name"]))
+					logger.error("'{0}' is not registered in org_jockey_master".format(result["jockey_name_four_words"]))
 				else:
 					result["jockey_id"] = row[0]
+					result["jockey_name"] = row[1]
 
 				#trainer_id を取得
-				sql = "select id from org_trainer_master where name_four_words = %s;"
-				cur.execute(sql, (result["trainer_name"], ))
+				sql = "select id, name from org_trainer_master where name_four_words = %s;"
+				cur.execute(sql, (result["trainer_name_four_words"], ))
 				row = cur.fetchone()
 				if row is None:
 					result["trainer_id"] = None
-					logger.error("'{0}' is not registered in org_trainer_master".format(result["trainer_name"]))
+					logger.error("'{0}' is not registered in org_trainer_master".format(result["trainer_name_four_words"]))
 				else:
 					result["trainer_id"] = row[0]
+					result["trainer_name"] = row[1]
 
 				results.append(result)
 
