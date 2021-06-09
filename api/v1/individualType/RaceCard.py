@@ -11,6 +11,9 @@ class RaceCard:
 			#クエリパラメータの取得
 			jvdHorseId = req.params['jvdHorseId']
 			size = int(req.params['size'])
+			courseId = None
+			if 'courseId' in req.params:
+				courseId = req.params['courseId']
 
 			#レスポンスの作成
 			raceCard['result'] = []
@@ -35,7 +38,7 @@ class RaceCard:
 			cur = conn.cursor(buffered=True)
 
 			#sql
-			sql =(
+			sql_start =(
 				'select '
 					'race_result.id_jvd, '
 					'target_race_class_master.id, '
@@ -81,11 +84,21 @@ class RaceCard:
 				'left join org_horse_master '
 					'on race_result.org_horse_master_id = org_horse_master.id '
 				'where org_horse_master.id_jvd = %s '
+			)
+			sql_course = 'and jvd_course_master_id = %s '
+			sql_end = (
 				'order by org_race_master.datetime desc '
 				'limit %s; '
 			)
 
-			cur.execute(sql, (jvdHorseId, size))
+			if courseId != None:
+				sql = "{0}{1}{2}".format(sql_start, sql_course, sql_end)
+				cur.execute(sql, (jvdHorseId, courseId, size))
+			else:
+				sql = "{0}{1}".format(sql_start, sql_end)
+				cur.execute(sql, (jvdHorseId, size))
+			
+			
 			rows = cur.fetchall()
 			for row in rows:
 				result = {}
