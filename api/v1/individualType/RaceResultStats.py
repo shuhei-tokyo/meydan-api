@@ -11,19 +11,18 @@ class RaceResultStats:
 		raceResultStats['result']['type'] = "RaceResultStats"
 
 		#クエリパラメータの取得
-		jvdHorseId = req.params['jvdHorseId']
-		courseId = int(req.params['courseId'])
-		trackType = req.params['trackType']
-		target_track_type_master_id = []
-		if trackType == 'turf':
-			target_track_type_master_id = [1, 5]
-			raceResultStats['result']['trackType'] = "芝"
-		elif trackType == 'dirt':
-			target_track_type_master_id = [2, 6] #6は配列の長さを揃えるためのダミー(該当データなし)
-			raceResultStats['result']['trackType'] = "ダート"
-		elif trackType == 'steepleChase':
-			target_track_type_master_id = [3, 4]
-			raceResultStats['result']['trackType'] = "障害"
+		#courseId = int(req.params['courseId'])
+		#trackType = req.params['trackType']
+		#target_track_type_master_id = []
+		#if trackType == 'turf':
+		#	target_track_type_master_id = [1, 5]
+		#	raceResultStats['result']['trackType'] = "芝"
+		#elif trackType == 'dirt':
+		#	target_track_type_master_id = [2, 6] #6は配列の長さを揃えるためのダミー(該当データなし)
+		#	raceResultStats['result']['trackType'] = "ダート"
+		#elif trackType == 'steepleChase':
+		#	target_track_type_master_id = [3, 4]
+		#	raceResultStats['result']['trackType'] = "障害"
 
 		#設定ファイルの読み込み
 		inifile = configparser.ConfigParser()
@@ -45,10 +44,10 @@ class RaceResultStats:
 		cur = conn.cursor(buffered=True)
 
 		#パラメータ詳細取得
-		sql_course = 'select name_two_words from jvd_course_master where id_jvd = %s;'
-		cur.execute(sql_course, (courseId,))
-		row = cur.fetchone()
-		raceResultStats['result']['course_name'] = row[0]
+		#sql_course = 'select name_two_words from jvd_course_master where id_jvd = %s;'
+		#cur.execute(sql_course, (courseId,))
+		#row = cur.fetchone()
+		#raceResultStats['result']['course_name'] = row[0]
 
 		#tmpテーブルの作成
 		sql_create_tmp = 'create temporary table tmp (order_of_arrival int); '
@@ -84,14 +83,23 @@ class RaceResultStats:
 				'and jvd_course_master.id_jvd = %s '
 				'and org_race_master.target_track_type_master_id in (%s,%s) '
 		)
+
+		sql_filter_2 = ""
+		if 'jvdHorseId' in req.params:
+			jvdHorseId = req.params['jvdHorseId']
+			sql_tmp = "and org_horse_master.id_jvd = "
+			sql_filter_2 = "{0}{1}{2} ".format(sql_filter_2, sql_tmp, jvdHorseId)
+
 		sql_end = (
 				'group by race_result.order_of_arrival_confirmed '
 			') as result '
 				'on tmp.order_of_arrival = result.order_of_arrival_confirmed '
 				'order by tmp.order_of_arrival; '
 		)
-		sql = "{0}{1}{2}".format(sql_start, sql_filter, sql_end)
-		cur.execute(sql, (jvdHorseId, courseId, target_track_type_master_id[0], target_track_type_master_id[1]))
+		#sql = "{0}{1}{2}".format(sql_start, sql_filter, sql_end)
+		#cur.execute(sql, (jvdHorseId, courseId, target_track_type_master_id[0], target_track_type_master_id[1]))
+		sql = "{0}{1}{2}".format(sql_start, sql_filter_2, sql_end)
+		cur.execute(sql)
 		raceResultStats['result']['element'] = [
 			{
 				"name": "1着",
