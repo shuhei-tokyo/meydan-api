@@ -10,20 +10,6 @@ class RaceResultStats:
 		raceResultStats['result'] = {}
 		raceResultStats['result']['type'] = "RaceResultStats"
 
-		#クエリパラメータの取得
-		#courseId = int(req.params['courseId'])
-		#trackType = req.params['trackType']
-		#target_track_type_master_id = []
-		#if trackType == 'turf':
-		#	target_track_type_master_id = [1, 5]
-		#	raceResultStats['result']['trackType'] = "芝"
-		#elif trackType == 'dirt':
-		#	target_track_type_master_id = [2, 6] #6は配列の長さを揃えるためのダミー(該当データなし)
-		#	raceResultStats['result']['trackType'] = "ダート"
-		#elif trackType == 'steepleChase':
-		#	target_track_type_master_id = [3, 4]
-		#	raceResultStats['result']['trackType'] = "障害"
-
 		#設定ファイルの読み込み
 		inifile = configparser.ConfigParser()
 		inifile.read('./config.ini', 'utf-8')
@@ -42,12 +28,6 @@ class RaceResultStats:
 			database = database
 		)
 		cur = conn.cursor(buffered=True)
-
-		#パラメータ詳細取得
-		#sql_course = 'select name_two_words from jvd_course_master where id_jvd = %s;'
-		#cur.execute(sql_course, (courseId,))
-		#row = cur.fetchone()
-		#raceResultStats['result']['course_name'] = row[0]
 
 		#tmpテーブルの作成
 		sql_create_tmp = 'create temporary table tmp (order_of_arrival int); '
@@ -70,6 +50,8 @@ class RaceResultStats:
 					'on race_result.org_race_master_id = org_race_master.id '
 				'left join jvd_course_master '
 					'on org_race_master.jvd_course_master_id = jvd_course_master.id '
+				'left join target_track_type_master '
+					'on org_race_master.target_track_type_master_id = target_track_type_master.id '
 				'left join org_horse_master '
 					'on race_result.org_horse_master_id = org_horse_master.id '
 				'left join org_jockey_master '
@@ -78,17 +60,32 @@ class RaceResultStats:
 					'on race_result.org_trainer_master_id = org_trainer_master.id '
 				'where race_result.jvd_accident_master_id in (1,5,6,7,8) '
 		)
-		sql_filter = (
-				'and org_horse_master.id_jvd = %s '
-				'and jvd_course_master.id_jvd = %s '
-				'and org_race_master.target_track_type_master_id in (%s,%s) '
-		)
 
-		sql_filter_2 = ""
+		sql_filter = ""
 		if 'jvdHorseId' in req.params:
 			jvdHorseId = req.params['jvdHorseId']
+			raceResultStats['result']['jvdHorseId'] = jvdHorseId
 			sql_tmp = "and org_horse_master.id_jvd = "
-			sql_filter_2 = "{0}{1}{2} ".format(sql_filter_2, sql_tmp, jvdHorseId)
+			sql_filter = "{0}{1}{2} ".format(sql_filter, sql_tmp, jvdHorseId)
+
+		if 'courseId' in req.params:
+			courseId = req.params['courseId']
+			raceResultStats['result']['courseId'] = courseId
+			sql_tmp = "and jvd_course_master.id_jvd = "
+			sql_filter = "{0}{1}{2} ".format(sql_filter, sql_tmp, courseId)
+
+		if 'trackType' in req.params:
+			trackType = req.params['trackType']
+			raceResultStats['result']['trackType'] = trackType
+			target_track_type_master_id = []
+			if trackType == 'turf':
+				target_track_type_master_id = [1, 5]
+			elif trackType == 'dirt':
+				target_track_type_master_id = [2, 6] #6は配列の長さを揃えるためのダミー(該当データなし)
+			elif trackType == 'steepleChase':
+				target_track_type_master_id = [3, 4]
+			sql_tmp = "and target_track_type_master.id in ({0}, {1}) ".format(target_track_type_master_id[0], target_track_type_master_id[1])
+			sql_filter = "{0}{1} ".format(sql_filter, sql_tmp)
 
 		sql_end = (
 				'group by race_result.order_of_arrival_confirmed '
@@ -96,9 +93,7 @@ class RaceResultStats:
 				'on tmp.order_of_arrival = result.order_of_arrival_confirmed '
 				'order by tmp.order_of_arrival; '
 		)
-		#sql = "{0}{1}{2}".format(sql_start, sql_filter, sql_end)
-		#cur.execute(sql, (jvdHorseId, courseId, target_track_type_master_id[0], target_track_type_master_id[1]))
-		sql = "{0}{1}{2}".format(sql_start, sql_filter_2, sql_end)
+		sql = "{0}{1}{2}".format(sql_start, sql_filter, sql_end)
 		cur.execute(sql)
 		raceResultStats['result']['element'] = [
 			{
