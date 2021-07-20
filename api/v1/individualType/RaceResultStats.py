@@ -52,6 +52,8 @@ class RaceResultStats:
 					'on org_race_master.jvd_course_master_id = jvd_course_master.id '
 				'left join target_track_type_master '
 					'on org_race_master.target_track_type_master_id = target_track_type_master.id '
+				'left join jvd_track_condition_master '
+					'on org_race_master.jvd_track_condition_master_id = jvd_track_condition_master.id '
 				'left join org_horse_master '
 					'on race_result.org_horse_master_id = org_horse_master.id '
 				'left join org_jockey_master '
@@ -85,6 +87,38 @@ class RaceResultStats:
 			elif trackType == 'steepleChase':
 				target_track_type_master_id = [3, 4]
 			sql_tmp = "and target_track_type_master.id in ({0}, {1}) ".format(target_track_type_master_id[0], target_track_type_master_id[1])
+			sql_filter = "{0}{1} ".format(sql_filter, sql_tmp)
+
+		if 'trackCondition' in req.params:
+			trackCondition = req.params['trackCondition']
+			raceResultStats['result']['trackCondition'] = []
+			sql_tmp = "and jvd_track_condition_master.id_jvd in ("
+			if trackCondition in ('firm', 'good', 'yielding', 'soft'):
+				#単数指定の場合
+				if trackCondition == 'firm':
+				    jvd_track_condition_master_id_jvd = 1
+				elif trackCondition == 'good':
+				    jvd_track_condition_master_id_jvd = 2
+				elif trackCondition == 'yielding':
+				    jvd_track_condition_master_id_jvd = 3
+				elif trackCondition == 'soft':
+				    jvd_track_condition_master_id_jvd = 4
+				sql_tmp = "{0}{1})".format(sql_tmp,jvd_track_condition_master_id_jvd)
+				raceResultStats['result']['trackCondition'].append(trackCondition)
+			else:
+				#複数指定の場合
+				for value in trackCondition:
+				    if value == 'firm':
+				        jvd_track_condition_master_id_jvd = 1
+				    elif value == 'good':
+				        jvd_track_condition_master_id_jvd = 2
+				    elif value == 'yielding':
+				        jvd_track_condition_master_id_jvd = 3
+				    elif value == 'soft':
+				        jvd_track_condition_master_id_jvd = 4
+				    sql_tmp = "{0}{1},".format(sql_tmp, jvd_track_condition_master_id_jvd)
+				sql_tmp = "{0})".format(sql_tmp[:-1])
+				raceResultStats['result']['trackCondition'] = trackCondition
 			sql_filter = "{0}{1} ".format(sql_filter, sql_tmp)
 
 		sql_end = (
